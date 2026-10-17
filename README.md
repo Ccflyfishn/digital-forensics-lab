@@ -26,6 +26,7 @@ My background also includes graduate education in counseling psychology and prev
 ---
 
 ## Lab Infrastructure
+**[View My DFIR Lab Architecture](lab-architecture.md)** — Virtual machine inventory, infrastructure configuration, and planned investigative workflows.
 
 My home laboratory is built on a Dell PowerEdge T630 server running Proxmox Virtual Environment.
 
