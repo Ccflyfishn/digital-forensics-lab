@@ -1,0 +1,112 @@
+# DFIR-001: Windows 11 Forensic Evidence Acquisition
+
+**Date:** October 27, 2026  
+**Environment:** Proxmox VE 9.1.1  
+**Case Type:** Windows 11 forensic investigation (controlled home lab)  
+**Status:** Evidence acquisition completed; forensic examination pending
+
+## 1. Investigation Objective
+
+This investigation is designed to develop practical skills in digital evidence acquisition, preservation, integrity verification, and forensic examination.
+
+The objective is to acquire a forensic image of a Windows 11 virtual machine, preserve the original evidence, and examine artifacts using industry-standard forensic tools.
+
+## 2. Lab Environment
+
+| Component | Description |
+|---|---|
+| Hypervisor | Proxmox VE 9.1.1 |
+| Storage | ZFS |
+| Victim machine | Windows 11, VM 101 |
+| Forensic workstation | Windows 11, VM 120 |
+| Forensic workstation RAM | 12 GB |
+| Imaging method | ZFS snapshot, clone, and `dd` |
+| Forensic tools | FTK Imager, Autopsy, Eric Zimmerman Tools |
+
+All activity takes place within an authorized home laboratory.
+
+## 3. Evidence Preservation
+
+The Windows 11 victim machine was used to generate test activity and then shut down before disk acquisition.
+
+A ZFS snapshot was created to preserve the disk state.
+
+**Evidence snapshot:**
+
+`zfs-lab-pool/vm-101-disk-0@DFIR-001-Evidence`
+
+A separate working clone was created from this snapshot:
+
+`zfs-lab-pool/dfir-001-working`
+
+This approach separates the preserved snapshot from the working copy used for acquisition.
+
+## 4. Forensic Disk Acquisition
+
+The working clone was exported into a raw disk image using the Linux `dd` utility on the Proxmox host.
+
+**Acquisition command:**
+
+```bash
+dd if=/dev/zvol/zfs-lab-pool/dfir-001-working of=/zfs-lab-pool/forensic-cases/DFIR-001/evidence/Victim-PC.img bs=4M iflag=fullblock status=progress
+```
+
+**Acquisition results:**
+
+- Output file: `Victim-PC.img`
+- Image format: Raw disk image
+- Total bytes copied: 85,899,345,920
+- Image size: 80 GiB
+- Elapsed time: Approximately 1,136 seconds
+- Average transfer speed: Approximately 75.6 MB/s
+- Acquisition completed without a reported `dd` error
+
+## 5. Evidence Integrity Verification
+
+A SHA-256 cryptographic hash was calculated for the exported image.
+
+**Command:**
+
+```bash
+sha256sum /zfs-lab-pool/forensic-cases/DFIR-001/evidence/Victim-PC.img
+```
+
+**SHA-256:**
+
+```text
+a6dd4fad2dc545ec166980b7089e43ef64555f34edeb2edacf03b26ab7b33cf3
+```
+
+This hash provides a reference for verifying that the image remains unchanged during transfer and examination.
+
+The hash was calculated after acquisition. Independent source-to-image verification has not yet been performed.
+
+## 6. Next Steps: Forensic Examination
+
+The next phase will involve:
+
+1. Making the forensic image accessible to the Windows DFIR workstation.
+2. Loading the raw disk image into FTK Imager.
+3. Examining the partition structure and Windows file system.
+4. Identifying Windows user activity and relevant forensic artifacts.
+5. Using Autopsy and Eric Zimmerman Tools to develop an activity timeline.
+6. Documenting findings, evidence references, and conclusions.
+
+## 7. Lessons Learned
+
+This exercise provided practical experience with:
+
+- ZFS snapshots and clones
+- Separating preserved evidence from working copies
+- Raw disk acquisition using `dd`
+- Understanding logical disk size versus physical storage consumption
+- SHA-256 hashing for evidence integrity
+- Documenting a repeatable forensic acquisition procedure
+
+## 8. Current Investigation Status
+
+**Completed:** Evidence snapshot, working clone, raw image export, and SHA-256 hashing.
+
+**Pending:** Transfer/access, FTK Imager examination, artifact analysis, and final investigation report.
+
+*This project is a controlled educational exercise and does not represent a real-world criminal investigation.*
